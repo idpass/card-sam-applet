@@ -87,6 +87,37 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
         this.secret = secret;
         slotsRepository = SlotsRepository.create();
     }
+    
+    protected SamApplet(byte[] bArray, short bOffset, byte bLength) {
+
+        byte lengthAID = bArray[bOffset];
+        short offsetAID = (short) (bOffset + 1);
+        short offset = bOffset;
+        offset += (bArray[offset]); // skip aid
+        offset++;
+        offset += (bArray[offset]); // skip privileges
+        offset++;
+
+        // default params
+
+        byte secret = DEFAULT_SECRET;
+
+        // read params
+        short lengthIn = bArray[offset];
+        if (lengthIn != 0) {
+
+            if (1 <= lengthIn) {
+                // param 1 - not mandatory
+                secret = bArray[(short) (offset + 1)];
+            }
+
+        }
+
+        this.secret = secret;
+        slotsRepository = SlotsRepository.create();
+
+        register(bArray, offsetAID, lengthAID);
+    }
 
     /**
      * Shareable interface standart call from JCOP
