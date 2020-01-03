@@ -1,35 +1,51 @@
 group 'card-applets'
 apply plugin: 'javacard'
 
-convertJavacard {
-    dependsOn ':tools:convertJavacard'
+compileJava {
+    dependsOn 'buildJavaCard'
+}
+
+buildJavaCard {
+    dependsOn ':tools:buildJavaCard'
+}
+
+jar {
+    manifest {
+        attributes ("Uri":_getUri(projectDir))
+        attributes ("Commit-hash":_getGitHash(projectDir))
+    }
+    baseName 'idpass_sam'
 }
 
 javacard {
-    sdkVersion = "3.0.4"
-    cap {
-        packageName = 'org.idpass.sam'
-        version = '0.1'
-        aid = '0xF7:0x69:0x64:0x70:0x61:0x73:0x73:0x02'
+  config {
+        jckit _JC_SELECTED
+        // Using custom repo with jcardsim
+        addSurrogateJcardSimRepo false
+        addImplicitJcardSim false
+        addImplicitJcardSimJunit false
 
-        applet {
-            className = 'SamApplet'
-            aid = '0xf7:0x69:0x64:0x70:0x61:0x73:0x73:0x02:0x01:0x00:0x01'
-        }
+        cap {
+            packageName = 'org.idpass.sam'
+            version = '0.1'
+            aid = '0xF7:0x69:0x64:0x70:0x61:0x73:0x73:0x02'
+            output 'sam.cap'
 
-        dependencies {
-            compile fileTree(dir: rootDir.absolutePath + '/libs/globalplatform-2_1_1', include: '*.jar')
-            javacardExport files([
-                rootDir.absolutePath + '/libs/globalplatform-2_1_1/',
-                rootDir.absolutePath + '/build/javacard/'
-            ])
-            compile files(rootDir.absolutePath + '/build/classes/java/main/')
-            compile project(':tools')
+            applet {
+                className = 'SamApplet'
+                aid = '0xf7:0x69:0x64:0x70:0x61:0x73:0x73:0x02:0x01:0x00:0x01'
+            }
+
+            dependencies {
+                remote 'local:gp211:2.1.1'
+                remote 'local:tools:0.0.1'
+            }
         }
     }
 }
 
 compileJava {
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = _sourceCompatibility 
+    targetCompatibility = _targetCompatibility 
 }
+
