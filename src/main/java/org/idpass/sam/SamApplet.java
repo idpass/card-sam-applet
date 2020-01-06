@@ -113,10 +113,11 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
 
         }
 
+        this.aid_offset = offsetAID ;
+        this.aid_len = lengthAID;
+
         this.secret = secret;
         slotsRepository = SlotsRepository.create();
-
-        register(bArray, offsetAID, lengthAID);
     }
 
     /**
