@@ -48,31 +48,13 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
 
     public static void install(byte[] bArray, short bOffset, byte bLength) {
 
-        byte lengthAID = bArray[bOffset];
-        short offsetAID = (short) (bOffset + 1);
-        short offset = bOffset;
-        offset += (bArray[offset]); // skip aid
-        offset++;
-        offset += (bArray[offset]); // skip privileges
-        offset++;
+        byte[] retval = new byte[3];
+        SamApplet applet = new SamApplet(bArray, bOffset, bLength, retval);
 
-        // default params
-
-        byte secret = DEFAULT_SECRET;
-
-        // read params
-        short lengthIn = bArray[offset];
-        if (lengthIn != 0) {
-
-            if (1 <= lengthIn) {
-                // param 1 - not mandatory
-                secret = bArray[(short) (offset + 1)];
-            }
-
-        }
+        short offsetAID = Util.makeShort(retval[0], retval[1]);
+        byte lengthAID =  retval[2];
 
         // GP-compliant JavaCard applet registration
-        SamApplet applet = new SamApplet(secret);
         applet.register(bArray, offsetAID, lengthAID);
     }
 
@@ -83,11 +65,6 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
     private byte              secret;
     private SlotsRepository   slotsRepository;
 
-    public SamApplet(byte secret) {
-        this.secret = secret;
-        slotsRepository = SlotsRepository.create();
-    }
-    
     protected SamApplet(byte[] bArray, short bOffset, byte bLength, byte[] retval) {
 
         byte lengthAID = bArray[bOffset];
@@ -115,7 +92,6 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
 
         Util.setShort(retval,(short)0x0000,offsetAID);
         retval[2] = lengthAID;
-        retval[3] = 0x00;
 
         this.secret = secret;
         slotsRepository = SlotsRepository.create();
