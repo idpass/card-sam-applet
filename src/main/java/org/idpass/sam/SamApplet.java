@@ -48,14 +48,10 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
 
     public static void install(byte[] bArray, short bOffset, byte bLength) {
 
-        byte[] retval = new byte[3];
-        SamApplet applet = new SamApplet(bArray, bOffset, bLength, retval);
-
-        short offsetAID = Util.makeShort(retval[0], retval[1]);
-        byte lengthAID =  retval[2];
+        SamApplet applet = new SamApplet(bArray, bOffset, bLength);
 
         // GP-compliant JavaCard applet registration
-        applet.register(bArray, offsetAID, lengthAID);
+        applet.register(bArray, (short)(bOffset + 1), bArray[bOffset]);
     }
 
     // default secret for SIO
@@ -65,7 +61,7 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
     private byte              secret;
     private SlotsRepository   slotsRepository;
 
-    protected SamApplet(byte[] bArray, short bOffset, byte bLength, byte[] retval) {
+    protected SamApplet(byte[] bArray, short bOffset, byte bLength) {
 
         byte lengthAID = bArray[bOffset];
         short offsetAID = (short) (bOffset + 1);
@@ -89,9 +85,6 @@ public class SamApplet extends IdpassApplet implements SIOAuthListener {
             }
 
         }
-
-        Util.setShort(retval,(short)0x0000,offsetAID);
-        retval[2] = lengthAID;
 
         this.secret = secret;
         slotsRepository = SlotsRepository.create();
